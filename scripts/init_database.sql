@@ -10,6 +10,12 @@ Purpose: Resets the environment by dropping the existing 'DataWarehouse'
 Author: Mohamed Alnady
 Date: May 2026
 ===============================================================================
+⚠️ WARNING:
+This script uses 'ROLLBACK IMMEDIATE' and 'DROP DATABASE'. Running this script
+will permanently delete the 'DataWarehouse' database and data. 
+ONLY run this script in local development or testing environments. 
+NEVER run this script on a live production server.
+===============================================================================
 */
 
 USE master;
