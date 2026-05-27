@@ -2,12 +2,12 @@
 ===============================================================================
 DDL Script: Create Bronze Layer Tables
 ===============================================================================
-Project: Data Warehouse & Analytics Project (Medallion Architecture)
+Project: SQL_Data_Warehouse_project
 Script: ddl_bronze.sql
 Purpose: This script initializes the DDL (Data Definition Language) for the 
          Bronze layer. It creates tables for both CRM and ERP source systems
          inside the 'bronze' schema.
-Author: Mohamed Alnady
+Author: Nady-07
 Date: May 2026
 
 ⚠️ NOTE:
