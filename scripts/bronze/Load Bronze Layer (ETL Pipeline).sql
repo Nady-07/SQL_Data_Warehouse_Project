@@ -1,6 +1,6 @@
 /*
 ===============================================================================
-Project Name:     Modern SQL Data Warehouse from Scratch
+Project Name:     SQL_Data_Warehouse_project
 Script Name:      Load Bronze Layer (ETL Pipeline)
 Layer / Schema:   Bronze (Raw Staging Area)
 Purpose:          Full snapshot reload of CRM and ERP source tables via BULK INSERT.
