@@ -192,35 +192,52 @@ BEGIN
 
         TRUNCATE TABLE silver.crm_sales_details;
 
-        INSERT INTO silver.crm_sales_details (
-            sls_ord_num,
-            sls_prd_key,
-            sls_cust_id,
-            sls_order_dt,
-            sls_ship_dt,
-            sls_due_dt,
-            sls_sales,
-            sls_quantity,
-            sls_price
-        )
-        SELECT
-            sls_ord_num,
-            sls_prd_key,
-            sls_cust_id,
-            TRY_CAST(CAST(sls_order_dt AS NVARCHAR(8)) AS DATE)                                         AS sls_order_dt,
-            TRY_CAST(CAST(sls_ship_dt  AS NVARCHAR(8)) AS DATE)                                         AS sls_ship_dt,
-            TRY_CAST(CAST(sls_due_dt   AS NVARCHAR(8)) AS DATE)                                         AS sls_due_dt,
-            CASE
-                WHEN sls_price IS NULL OR sls_price <= 0 THEN ABS(sls_sales / sls_quantity)
-                ELSE sls_price
-            END                                                                                         AS sls_price,
-            CASE
-                WHEN sls_sales IS NULL OR sls_sales <= 0
-                  OR sls_sales <> ABS(sls_price) * sls_quantity   THEN ABS(sls_price) * sls_quantity
-                ELSE sls_sales
-            END                                                                                         AS sls_sales,
-            sls_quantity
-        FROM bronze.crm_sales_details;
+WITH converted_sales AS (
+    SELECT
+        sls_ord_num,
+        sls_prd_key,
+        sls_cust_id,
+        TRY_CAST(CAST(sls_order_dt AS NVARCHAR(8)) AS DATE) AS sls_order_dt,
+        TRY_CAST(CAST(sls_ship_dt  AS NVARCHAR(8)) AS DATE) AS sls_ship_dt,
+        TRY_CAST(CAST(sls_due_dt   AS NVARCHAR(8)) AS DATE) AS sls_due_dt,
+        CASE
+            WHEN sls_price IS NULL OR sls_price <= 0 THEN ABS(sls_sales / sls_quantity)
+            ELSE sls_price
+        END AS sls_price,
+        CASE
+            WHEN sls_sales IS NULL OR sls_sales <= 0
+              OR sls_sales <> ABS(sls_price) * sls_quantity THEN ABS(sls_price) * sls_quantity
+            ELSE sls_sales
+        END AS sls_sales,
+        sls_quantity
+    FROM bronze.crm_sales_details
+)
+INSERT INTO silver.crm_sales_details (
+    sls_ord_num,
+    sls_prd_key,
+    sls_cust_id,
+    sls_order_dt,
+    sls_ship_dt,
+    sls_due_dt,
+    sls_sales,
+    sls_quantity,
+    sls_price
+)
+SELECT
+    sls_ord_num,
+    sls_prd_key,
+    sls_cust_id,
+    sls_order_dt,
+    sls_ship_dt,
+    sls_due_dt,
+    sls_sales,    -- Fixed column alignment
+    sls_quantity, -- Fixed column alignment
+    sls_price     -- Fixed column alignment
+FROM converted_sales
+WHERE 
+    (sls_order_dt <= GETDATE())
+    AND (sls_ship_dt <= GETDATE())
+    AND (sls_due_dt <= GETDATE());
 
         SET @step_end = GETDATE();
         PRINT '   >> Status   : SUCCESS';
